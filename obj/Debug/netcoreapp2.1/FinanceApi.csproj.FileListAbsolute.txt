@@ -1,0 +1,14 @@
+C:\Users\Fernando\Desktop\FinanceApi\bin\Debug\netcoreapp2.1\FinanceApi.deps.json
+C:\Users\Fernando\Desktop\FinanceApi\bin\Debug\netcoreapp2.1\FinanceApi.runtimeconfig.json
+C:\Users\Fernando\Desktop\FinanceApi\bin\Debug\netcoreapp2.1\FinanceApi.runtimeconfig.dev.json
+C:\Users\Fernando\Desktop\FinanceApi\bin\Debug\netcoreapp2.1\FinanceApi.dll
+C:\Users\Fernando\Desktop\FinanceApi\bin\Debug\netcoreapp2.1\FinanceApi.pdb
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.csprojAssemblyReference.cache
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.csproj.CoreCompileInputs.cache
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.RazorAssemblyInfo.cache
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.RazorAssemblyInfo.cs
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.AssemblyInfoInputs.cache
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.AssemblyInfo.cs
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.RazorTargetAssemblyInfo.cache
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.dll
+C:\Users\Fernando\Desktop\FinanceApi\obj\Debug\netcoreapp2.1\FinanceApi.pdb

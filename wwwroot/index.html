@@ -1,0 +1,473 @@
+<html>
+
+<head>
+	<title>Budget Beaks</title>
+</head>
+
+<body>
+	<h1> Welcome to the Budget Dome </h1>
+
+	<div id="loginRegister" class="container">
+		<h3>Login</h3>
+
+
+		<label for="email">
+			<b>Email</b>
+		</label>
+		<input id="email" type="text" placeholder="Enter Email" name="email" required>
+
+		<label for="psw">
+			<b>Password</b>
+		</label>
+		<input id="password" type="password" placeholder="Enter Password" name="psw" required>
+
+		<br>
+		<br>
+		<div class="clearfix">
+			<button id="login" type="submit" onclick="UserAction()">Login</button>
+		</div>
+
+	</div>
+
+
+	<div id="loggedIn" style="visibility:hidden" class="container">
+
+		<h3 id="loggedInText">Welcome back, </h3>
+
+		<fieldset>
+			<legend>Choose Dates for Spending Summary</legend>
+
+			<div>
+				<label for="start">Start</label>
+				<input type="date" id="startDate" name="trip" value="2018-06-22" min="2018-01-01" max="2018-12-31" />
+			</div>
+
+			<div>
+				<label for="end">End</label>
+				<input type="date" id="endDate" name="trip" value="2018-07-29" min="2018-01-01" max="2018-12-31" />
+			</div>
+			<div class="clearfix">
+				<button id="spendingSummary" type="submit" onclick="dateIntervalTransactionAction()">Search</button>
+			</div>
+		</fieldset>
+
+		<br>
+		<h3>or.....</h3>
+		<br>
+
+		<fieldset>
+
+			<legend>Choose Category Budget</legend>
+			<label for="select">Category Budget</label>
+			<select id="select" onchange="categoryBudgetTransactionAction()">
+				<option disabled selected value> -- select an option -- </option>
+			</select>
+		</fieldset>
+		<br>
+		<hr>
+		<h3 id="spendingSummaryTitle"> Here is your Spending Summary: No Filter</h3>
+		<h3 id="spendingSummaryDateIntervalTitle" style="display:none"> Here is your Spending Summary: Date Interval</h3>
+		<h3 id="spendingSummaryCategoryBudgetTitle" style="display:none"> Here is your Spending Summary: Category Budget</h3> <h3 style="display: none" id=categoryBudgetComparison><h3>
+		<button onclick="noFilterTransactionAction()">reload no filter view</button>
+
+		<div id="transactionTable">
+		</div>
+
+		<br>
+		<br>
+		<hr>
+		<h4>Create Records</h4>
+		<hr>
+		<div class="clearfix">
+
+			<div class="container">
+				<div class="main">
+					<div id="categoryDialog" title="Dialog Form">
+						<form action="" method="post">
+							<label>Create Category:</label>
+							<br>
+							<label for="categoryName">Category Name</label>
+							<input id="categoryName" name="name" type="text">
+							<input id="submitCategory" type="submit" onclick="CreateCategoryAPI()" value="Create">
+
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="clearfix">
+
+			<div class="container">
+				<div class="main">
+					<div id="categoryBudgetDialog" title="Dialog Form">
+						<form action="" method="post">
+							<label>Create Category Budget:</label>
+							<br>
+							<label>Category ID:</label>
+							<input id="budgetCategoryID" name="budgetInterval" type="text">
+							<label>Budget Interval:</label>
+							<input id="budgetInterval" name="budgetInterval" type="text">
+							<label>Amount:</label>
+							<input id="budgetAmount" name="amount" type="text">
+							<input id="submitCategoryBudget" type="submit" onclick="CreateCategoryBudgetAPI()" value="Create">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="clearfix">
+			<div class="container">
+				<div class="main">
+					<div id="transactionDialog" title="Dialog Form">
+						<form action="" method="post">
+							<label>Transaction:</label>
+							<br>
+							<label>Amount:</label>
+							<input id="transactionAmount" name="amount" type="text">
+							<label>Description:</label>
+							<input id="transactionDescription" name="budgetInterval" type="text">
+							<label>PurchaseDate:</label>
+							<input id="transactionPurchaseDate" name="amount" type="date">
+							<input id="submitTransaction" type="submit" onclick="CreateTransactionAPI()" value="Create">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<br><br>
+
+
+	<script>
+
+
+
+		function CreateCategoryAPI() {
+			event.preventDefault();
+			var xhr = new XMLHttpRequest();
+			var categoryName = document.getElementById("categoryName").value;
+			xhr.open("POST", "https://localhost:5001/api/categories", true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(JSON.stringify({ name: categoryName }));
+
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					alert("category created");
+				}
+
+				else if (this.status >= 400) {
+					alert("category failed to be created");
+				}
+			};
+		}
+
+		function CreateCategoryBudgetAPI() {
+			event.preventDefault();
+			var user = JSON.parse(localStorage.getItem("user"));
+			var xhr = new XMLHttpRequest();
+			var budgetCategoryID = document.getElementById("budgetCategoryID").value;
+			var budgetIntervals = document.getElementById("budgetInterval").value;
+			var budgetAmount = document.getElementById("budgetAmount").value;
+			xhr.open("POST", "https://localhost:5001/api/users/" + user.id + "/categoryBudgets", true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(JSON.stringify(
+				{
+					categoryID: budgetCategoryID,
+					budgetInterval: budgetIntervals,
+					amount: budgetAmount
+				}
+			));
+
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					alert("category budget created");
+					categoryBudgetAction();
+				}
+
+				else if (this.status >= 400) {
+					alert("category budget failed to be created");
+				}
+			};
+		}
+
+		function CreateTransactionAPI() {
+			event.preventDefault()
+			var user = JSON.parse(localStorage.getItem("user"));
+			var xhr = new XMLHttpRequest();
+			var transactionAmount = document.getElementById("transactionAmount").value;
+			var transactionDescription = document.getElementById("transactionDescription").value;
+			var transactionPurchaseDate = document.getElementById("transactionPurchaseDate").value;
+			xhr.open("POST", "https://localhost:5001/api/users/" + user.id + "/transactions", true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(JSON.stringify(
+				{
+					userID: user.id,
+					amount: transactionAmount,
+					description: transactionDescription,
+					dateOfPurchase: transactionPurchaseDate
+				}));
+
+		}
+
+		function UserAction() {
+
+			var xhttp = new XMLHttpRequest();
+
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var myArr = JSON.parse(this.responseText);
+					localStorage.setItem("user", JSON.stringify(myArr[0]))
+					var clientPassword = document.getElementById("password").value;
+					var serverPassword = myArr[0].password;
+					if (clientPassword == serverPassword) {
+						uponLogin(myArr);
+					} else {
+						document.getElementById("loginRegister").style.display = 'none';
+						document.getElementById("loggedIn").style.visibility = 'visible';
+					}
+
+				}
+
+				else if (this.status >= 400) {
+					alert("invalid username or password, try again");
+				}
+			};
+
+			var password = document.getElementById("password").value
+			var email = document.getElementById("email").value
+
+
+			xhttp.open("GET", "https://localhost:5001/api/users" + '?email=' + email, true);
+			xhttp.setRequestHeader("Content-type", "application/json");
+			xhttp.withCredentials = true;
+			xhttp.send();
+
+			function uponLogin(arr) {
+				document.getElementById("loginRegister").style.display = 'none';
+				document.getElementById("loggedIn").style.visibility = 'visible';
+				document.getElementById("loggedInText").innerHTML += arr[0].name;
+
+				noFilterTransactionAction();
+				categoryAction();
+				categoryBudgetAction();
+
+			}
+
+		}
+
+		function noFilterTransactionAction() {
+			document.getElementById("spendingSummaryTitle").style.display = "block";
+			document.getElementById("spendingSummaryTitle").style.visibility = 'visible';
+			document.getElementById("spendingSummaryDateIntervalTitle").style.display = 'none';
+			document.getElementById("spendingSummaryCategoryBudgetTitle").style.display = 'none';
+			document.getElementById("categoryBudgetComparison").style.display = 'none';
+
+			var transXhttp = new XMLHttpRequest();
+			var transTable = document.getElementById("transactionTable");
+			var user = JSON.parse(localStorage.getItem("user"));
+			transXhttp.open("GET", "https://localhost:5001/api/users/" + user.id + "/transactions", true);
+			transXhttp.setRequestHeader("Content-type", "application/json");
+			transXhttp.withCredentials = true;
+			transXhttp.send();
+
+			transXhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					localStorage.setItem("allTransactions", JSON.stringify(data));
+
+					$("#transactionTable").tabulator("setData", data)
+				} else if (this.status >= 400) {
+					var data = JSON.parse(this.responseText);
+					$("#transactionTable").tabulator("setData", {})
+				}
+			}
+		}
+
+		function dateIntervalTransactionAction() {
+			document.getElementById("spendingSummaryDateIntervalTitle").style.display = "block";
+			document.getElementById("spendingSummaryDateIntervalTitle").style.visibility = 'visible';
+			document.getElementById("spendingSummaryTitle").style.display = 'none';
+			document.getElementById("spendingSummaryCategoryBudgetTitle").style.display = 'none';
+			document.getElementById("categoryBudgetComparison").style.display = 'none';
+
+			var queryParams = "?purchaseDateStart=" + document.getElementById("startDate").value;
+			queryParams += "&purchaseDateEnd=" + document.getElementById("endDate").value;
+			var xhr = new XMLHttpRequest();
+			var transTable = document.getElementById("transactionTable");
+			var user = JSON.parse(localStorage.getItem("user"));
+			xhr.open("GET", "https://localhost:5001/api/users/" + user.id + "/transactions" + queryParams, true);
+			xhr.setRequestHeader("Content-type", "application/json");
+			xhr.withCredentials = true;
+			xhr.send();
+
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					localStorage.setItem("dateIntervalTransactions", JSON.stringify(data));
+
+					$("#transactionTable").tabulator("setData", data);
+				} else if (this.status >= 400) {
+
+					$("#transactionTable").tabulator("setData", {});
+				}
+			}
+		}
+
+		
+
+		function categoryBudgetTransactionAction() {
+			document.getElementById("spendingSummaryCategoryBudgetTitle").style.display = "block";
+			document.getElementById("spendingSummaryCategoryBudgetTitle").style.visibility = 'visible';
+			document.getElementById("spendingSummaryTitle").style.display = 'none';
+			document.getElementById("spendingSummaryDateIntervalTitle").style.display = 'none';
+			document.getElementById("categoryBudgetComparison").style.display = 'none';
+			
+			var x = document.getElementById("select").selectedIndex;
+			var y = document.getElementById("select").options;
+
+			var selectedOption = y[x];
+
+			var queryParams = "?purchaseDateStart=" + createTimeIntervalFromBudgetInterval(selectedOption.name).toJSON();
+			queryParams += "&categoryID=" + selectedOption.value;
+			var xhr = new XMLHttpRequest();
+			var transTable = document.getElementById("transactionTable");
+			var user = JSON.parse(localStorage.getItem("user"));
+			xhr.open("GET", "https://localhost:5001/api/users/" + user.id + "/transactions" + queryParams, true);
+			xhr.setRequestHeader("Content-type", "application/json");
+			xhr.withCredentials = true;
+			xhr.send();
+
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					localStorage.setItem("dateIntervalTransactions", JSON.stringify(data));
+
+					$("#transactionTable").tabulator("setData", data);
+					displayBudgetAndActualSpending(data);
+				} else if (this.status >= 400) {
+
+					$("#transactionTable").tabulator("setData", {});
+				}
+			}
+		}
+
+		function displayBudgetAndActualSpending(data) {
+			var len = data.length;
+			var actualSpentAmount = 0;
+			var budgetedAmount = 0;
+			var categoryBudgets = JSON.parse(localStorage.getItem("categoryBudgets"));
+			var user = JSON.parse(localStorage.getItem("user"));
+			
+			for (k = 0; k < len; k++) {
+				actualSpentAmount += data[k].amount;
+			}
+
+			for (j = 0; j < categoryBudgets.length; j++) {
+				if (user.id == categoryBudgets[j].userID && data[0].categoryID == categoryBudgets[j].categoryID) {
+						budgetedAmount = categoryBudgets[j].amount;
+					}
+			}
+
+			var h = document.getElementById("categoryBudgetComparison");
+			h.innerHTML = "Budgeted Amount: " + budgetedAmount + " ";
+			h.innerHTML += "Actual Amount Spent: " + actualSpentAmount;
+			h.style.display = "block";
+			h.style.visibility = "visible";
+
+		}
+
+		function categoryBudgetAction() {
+			var transXhttp = new XMLHttpRequest();
+			var user = JSON.parse(localStorage.getItem("user"));
+			transXhttp.open("GET", "https://localhost:5001/api/users/" + user.id + "/categoryBudgets", true);
+			transXhttp.setRequestHeader("Content-type", "application/json");
+			transXhttp.withCredentials = true;
+			transXhttp.send();
+
+			transXhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					var len = data.length;
+
+					for (i = 0; i < len; i++) {
+						var option = document.createElement("option");
+						option.text = getCategoryNameFromID(data[i].categoryID) + " " + getCategoryBudgetEnumValue(data[i].budgetInterval);
+						option.value = data[i].categoryID;
+						option.name = data[i].budgetInterval;					
+						document.getElementById("select").appendChild(option);
+					};
+
+					localStorage.setItem("categoryBudgets", JSON.stringify(data))
+
+				};
+			}
+		}
+
+		function categoryAction() {
+			var transXhttp = new XMLHttpRequest();
+			var user = JSON.parse(localStorage.getItem("user"));
+			transXhttp.open("GET", "https://localhost:5001/api/categories", true);
+			transXhttp.setRequestHeader("Content-type", "application/json");
+			transXhttp.withCredentials = true;
+			transXhttp.send();
+
+			transXhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+
+					localStorage.setItem("categories", JSON.stringify(data))
+
+				};
+			}
+		}
+
+		function createTimeIntervalFromBudgetInterval(val) {
+			switch (val) {
+				case 1:
+					return new Date();
+				case 2:
+					return new Date(new Date().setDate(new Date().getDate()-7));
+				case 3:
+					return new Date(new Date().setDate(new Date().getDate()-30));
+				case 4:
+					return new Date(new Date().setDate(new Date().getDate()-365));
+			}
+
+		}
+
+		function getCategoryBudgetEnumValue(val) {
+			switch (val) {
+				case 1:
+					return "Daily";
+				case 2:
+					return "Weekly";
+				case 3:
+					return "Monthly";
+				case 4:
+					return "Yearly";
+			}
+		}
+
+		function getCategoryNameFromID(val) {
+			var categories = JSON.parse(localStorage.getItem("categories"));
+			var len = categories.length;
+
+			for (j = 0; j < len; j++) {
+				if (val == categories[j].id) {
+					return categories[j].name;
+				}
+			}
+		}
+	</script>
+
+</body>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link href="dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="dist/js/tabulator.min.js"></script>
+<script type="text/javascript" src="jquerytypething.js"></script>
+
+</html>
